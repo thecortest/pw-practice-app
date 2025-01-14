@@ -12,7 +12,17 @@ export default defineConfig<TestOptions>({
   },
 
   retries: 1,
-  reporter: "html",
+  reporter: [
+    process.env.CI ? ["dot"] : ["list"],
+    [
+      "@argos-ci/playwright/reporter",
+      {
+        // Upload to Argos on CI only.
+        uploadToArgos: !!process.env.CI,
+      },
+    ],
+    ["html"],
+  ],
 
   //   [["json", { outputFile: "test-results/jsonReport.json" }],
   //   ["junit", { outputFile: "test-results/junitReport.xml" }],
@@ -23,6 +33,7 @@ export default defineConfig<TestOptions>({
     glabalsQaURL: "https://www.globalsqa.com/demo-site/draganddrop/",
     baseURL: process.env.DEV === "1" ? "http://localhost:4200/" : process.env.STAGING == "1" ? "http://localhost:4200/" : "http://localhost:4200/",
     trace: "on-first-retry",
+    screenshot: "only-on-failure",
     actionTimeout: 20000,
     navigationTimeout: 25000,
     video: { mode: "off", size: { width: 1920, height: 1080 } },
